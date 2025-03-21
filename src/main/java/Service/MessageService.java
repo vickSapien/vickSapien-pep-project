@@ -21,8 +21,10 @@ public class MessageService {
     }
 
     public List<Message> getAllMessageByUser(int account_id){
+        if (account_id < 0) {
+            return null;
+        }
         return messageDAO.getAllMessageByUser(account_id);
-
     }
 
     public List<Message> getAllMessage(){
@@ -30,13 +32,13 @@ public class MessageService {
     }
 
     public Message postMessage(Message message){
-        if (message.getMessage_text().isBlank() || message.getMessage_text().isBlank()) {
+        if (message.getMessage_text().isBlank() || message.getMessage_text().isBlank() || message.equals(null)) {
             return null;
         }
         return messageDAO.postMessage(message);
     }
     public Message updateMessageByID(Message message){
-        if (message.getMessage_text().isBlank() || message.getMessage_text().length() > 255) {
+        if (message.message_text.isBlank() || message.message_text.length() > 255 ) {
             return null;
         }
         return messageDAO.updateMessageByID(message);

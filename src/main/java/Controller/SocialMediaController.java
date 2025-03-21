@@ -51,9 +51,6 @@ public class SocialMediaController {
         app.post("/messages", this::postMessageHandler);
         app.post("/login", this::loginHandler);
         app.delete("/messages/{message_id}", this::deleteMessageByIDHandler);
-
-
-        
         app.patch("/messages/{message_id}", this::updateMessageByIDHandler); 
 
         return app;
@@ -72,8 +69,14 @@ public class SocialMediaController {
     private void loginHandler(Context ctx) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(ctx.body(), Account.class);
-        ctx.json(accountService.AccountLogin(account));
-        
+        Account passwordAccount = accountService.getAccountbyPassword(account.getPassword());
+        Account usernameAccount = accountService.getAccountbyUsername(account.getUsername());
+
+        if(passwordAccount != null && usernameAccount != null){
+            ctx.json(accountService.accountLogin(account));
+        }else{
+            ctx.status(401);
+        }
     }
 
     private void postMessageHandler(Context ctx) throws JsonMappingException, JsonProcessingException  {
@@ -120,15 +123,26 @@ public class SocialMediaController {
     }
 
     private void updateMessageByIDHandler(Context ctx) throws JsonProcessingException {
-        int messageId = Integer.parseInt(Objects.requireNonNull(ctx.pathParam("message_id")));
-
+        
+        int messageId = Integer.parseInt(Objects.requireNonNull(ctx.pathParam("message_id"))); 
+        
         ObjectMapper mapper = new ObjectMapper();
-        Message message = mapper.readValue(ctx.body().toString(), Message.class);
-        //message.setMessage_id(messageId);
-        Message addedMessage = messageService.updateMessageByID(message);
-        if(addedMessage!=null){
-            ctx.json(mapper.writeValueAsString(addedMessage));
-        }else{
+        Message updatedMessageText = mapper.readValue(ctx.body(), Message.class);
+        
+        Message oldMessage = messageService.getMessageByID(messageId);
+        
+    
+        if(oldMessage!=null){
+            oldMessage.setMessage_text(updatedMessageText.getMessage_text());
+            Message addedMessage = messageService.updateMessageByID(oldMessage);
+            if (addedMessage!=null) {
+                ctx.json(mapper.writeValueAsString(addedMessage));
+            }
+            else{
+                ctx.status(400);
+            }
+        }
+        else{
             ctx.status(400);
         }
         

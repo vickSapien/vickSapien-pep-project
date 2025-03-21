@@ -16,9 +16,17 @@ public class AccountService {
 
     }
 
-    public Account AccountLogin(Account account){
+    public Account accountLogin(Account account){
         return accountDAO.login(account.getUsername(), account.getPassword());
 
+    }
+
+    public Account getAccountbyPassword(String password){
+        return accountDAO.getAccountbyPassword(password);
+    }
+
+    public Account getAccountbyUsername(String username){
+        return accountDAO.getAccountbyUsername(username);
     }
 
     public Account registerAccount(Account account){
